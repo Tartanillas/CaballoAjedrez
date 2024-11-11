@@ -58,5 +58,27 @@ function clearTargets(targets) {
 }
 
 function getRandomPosition() {
-	return "B1"
+	const columnas = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+	const filas = ['1', '2', '3', '4', '5', '6', '7', '8'];
+	const columnaAleatoria = columnas[parseInt(Math.random() * columnas.length)];
+	const filaAleatoria = filas[parseInt(Math.random() * filas.length)];
+	return columnaAleatoria + filaAleatoria;
+}
+
+function restartScore() {
+	document.querySelector('.btn-reinicio').addEventListener('click', (event) => {
+		alert(event.target)
+		document.getElementById('played-text').innerHTML = '0';
+		document.getElementById('best-mov-text').innerHTML = '0';
+		document.getElementById('best-num-text').innerHTML = '0';
+		document.getElementById('worst-mov-text').innerHTML = '0';
+		document.getElementById('worst-num-text').innerHTML = '0';
+	})
+}
+
+function putDropable() {
+	const celdasDropables = calcTargets(initialPosition);
+	celdasDropables.forEach(celda => {
+		document.getElementById(celda).classList.add('dropable');
+	})
 }
