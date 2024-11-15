@@ -5,13 +5,16 @@ const max = 8
 const min = 1
 const columnas = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
 const filas = ['1', '2', '3', '4', '5', '6', '7', '8']
-
+let movimientosPorPartida = []
+let movimientosIniciales = 0
+let posicionFinal = getRandomPosition()
+let posicionActual = initialPosition
 window.addEventListener('load', () => {
 	renderTable()
 	restartScore()
 	winnerPosition()
-	putDropable(initialPosition)
 	startMove()
+	putDropable(initialPosition)
 })
 
 function renderTable() {
@@ -79,6 +82,8 @@ function restartScore() {
 		Array.from(campos).forEach(campo => {
 			campo.textContent = 0
 		})
+		movimientosPorPartida = [];
+		movimientosIniciales = 0;
 	})
 }
 
@@ -91,26 +96,79 @@ function putDropable(position) {
 	return elementosDropables
 }
 
+function startNewGame() {
+	movimientosIniciales = 0
+	posicionFinal = getRandomPosition()
+	borrarCeldasDropables()
+	renderTable()
+	winnerPosition()
+	putDropable(initialPosition)
+	startMove()
+}
+
+
 function winnerPosition() {
-	const casillaResultante = getRandomPosition()
-	document.getElementById(casillaResultante).classList.add('final')
-	document.getElementById('posicion').textContent = casillaResultante
+	document.getElementById(posicionFinal).classList.add('final')
+	document.getElementById('posicion').textContent = posicionFinal
+}
+
+function checkWin(position) {
+	if (position === posicionFinal) {
+		alert('¡Has alcanzado el objetivo!')
+		movimientosPorPartida.push(movimientosIniciales)
+		updateScore()
+		borrarCeldasDropables()
+		posicionActual = initialPosition
+		startNewGame()
+	}
+}
+
+function borrarCeldasDropables() {
+	const celdasDropables = document.querySelectorAll('.dropable')
+	celdasDropables.forEach(celda => {
+		celda.classList.remove('dropable')
+		celda.removeEventListener('dragover', dragOverHandler)
+		celda.removeEventListener('drop', dropHandler)
+	})
+}
+
+
+function dragOverHandler(event) {
+	event.preventDefault()
+}
+
+function dropHandler(event) {
+	event.preventDefault()
+	const data = event.dataTransfer.getData('text/plain')
+	event.target.appendChild(document.getElementById(data))
+	movimientosIniciales++
+	posicionActual = event.target.id
+	checkWin(event.target.id)
+	startMove() 
 }
 
 function startMove() {
 	const caballo = document.getElementById('caballo')
+	borrarCeldasDropables()
+	const celdasDropables = putDropable(posicionActual)
+
 	caballo.addEventListener('dragstart', (event) => {
 		event.dataTransfer.setData('text/plain', event.target.id)
 	})
-	const celdasDropables = putDropable(initialPosition)
 	celdasDropables.forEach(celda => {
-		celda.addEventListener('dragover', (event) => {
-			event.preventDefault()
-		})
-		celda.addEventListener('drop', (event) => {
-			event.preventDefault()
-			const data = event.dataTransfer.getData('text/plain')
-			event.target.appendChild(document.getElementById(data))
-		})
+		celda.addEventListener('dragover', dragOverHandler)
+		celda.addEventListener('drop', dropHandler)
 	})
+}
+
+function updateScore() {
+	document.getElementById('played-text').textContent++
+	const movimientosMejorPartida = Math.min(...movimientosPorPartida)
+	const movimientosPeorPartida = Math.max(...movimientosPorPartida)
+	document.getElementById('best-mov-text').textContent = movimientosMejorPartida
+	document.getElementById('worst-mov-text').textContent = movimientosPeorPartida
+	const vecesMejorPartida = movimientosPorPartida.filter(movimiento => movimiento === movimientosMejorPartida).length
+	const vecesPeorPartida = movimientosPorPartida.filter(movimiento => movimiento === movimientosPeorPartida).length
+	document.getElementById('best-num-text').textContent = vecesMejorPartida
+	document.getElementById('worst-num-text').textContent = vecesPeorPartida
 }
