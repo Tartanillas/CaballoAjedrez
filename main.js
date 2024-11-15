@@ -83,7 +83,6 @@ function restartScore() {
 			campo.textContent = 0
 		})
 		movimientosPorPartida = [];
-		movimientosIniciales = 0;
 	})
 }
 
@@ -99,7 +98,7 @@ function putDropable(position) {
 function startNewGame() {
 	movimientosIniciales = 0
 	posicionFinal = getRandomPosition()
-	borrarCeldasDropables()
+	removeDropable()
 	renderTable()
 	winnerPosition()
 	putDropable(initialPosition)
@@ -117,13 +116,13 @@ function checkWin(position) {
 		alert('¡Has alcanzado el objetivo!')
 		movimientosPorPartida.push(movimientosIniciales)
 		updateScore()
-		borrarCeldasDropables()
+		removeDropable()
 		posicionActual = initialPosition
 		startNewGame()
 	}
 }
 
-function borrarCeldasDropables() {
+function removeDropable() {
 	const celdasDropables = document.querySelectorAll('.dropable')
 	celdasDropables.forEach(celda => {
 		celda.classList.remove('dropable')
@@ -149,7 +148,7 @@ function dropHandler(event) {
 
 function startMove() {
 	const caballo = document.getElementById('caballo')
-	borrarCeldasDropables()
+	removeDropable()
 	const celdasDropables = putDropable(posicionActual)
 
 	caballo.addEventListener('dragstart', (event) => {
